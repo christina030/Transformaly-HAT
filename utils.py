@@ -242,7 +242,7 @@ def extract_fetures(base_path,
                     if output_test_features:
                         if filter == 0:
                             if not os.path.exists(
-                                join(extracted_features_path, 'train_pretrained_ViT_features.npy')):
+                                join(extracted_features_path, 'test_pretrained_ViT_features.npy')):
                                 test_features = get_features(model=model, data_loader=testsetLoader)
                                 with open(join(extracted_features_path,
                                             'test_pretrained_ViT_features_' + str(filter) + '.npy'), 'wb') as f:

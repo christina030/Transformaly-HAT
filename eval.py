@@ -69,8 +69,15 @@ if __name__ == '__main__':
                'all_layers_finetuned_AUROC_scores': [],
                'pretrained_and_finetuned_AUROC_scores': []}
 
+    pre_scores = []
+    fine_scores = []
+    full_scores = []
     for _class in _classes:
-        tests = []
+        # if _class > 6:
+        #     continue
+        pre_score = []
+        fine_score = []
+        full_score = []
         for filter in range(3):
             print_and_add_to_log("===================================", logging)
             print_and_add_to_log(f"Class is : {_class}", logging)
@@ -108,7 +115,7 @@ if __name__ == '__main__':
                                                     use_imagenet=args['use_imagenet'],
                                                     filter=filter)
 
-            tests.append(testset[0])
+            # tests.append(testset[0])
             
             test_loader = torch.utils.data.DataLoader(testset,
                                                     batch_size=args['batch_size'],
@@ -285,10 +292,30 @@ if __name__ == '__main__':
 
             results['pretrained_and_finetuned_AUROC_scores'].append(finetuned_and_pretrained_auc)
 
+            pre_score.append(pretrained_auc)
+            fine_score.append(test_finetuned_auc)
+            full_score.append(finetuned_and_pretrained_auc)
+            
             print(test_finetuned_features.shape)
             print(test_pretrained_samples_likelihood[:5])
             print(test_finetuned_samples_likelihood[:5])
             print(finetuned_and_pretrained_samples_likelihood[:5])
+
+        pre_scores.append(pre_score)
+        fine_scores.append(fine_score)
+        full_scores.append(full_score)
+
+    # (class, 3 filter)
+    pre_scores = np.mean(pre_scores, axis=0)
+    fine_scores = np.mean(fine_scores, axis=0)
+    full_scores = np.mean(full_scores, axis=0)
+
+    for filter in range(3):
+        results['class'].append('all')
+        results['filter'].append(filter)
+        results['pretrained_AUROC_scores'].append(pre_scores[filter])
+        results['all_layers_finetuned_AUROC_scores'].append(fine_scores[filter])
+        results['pretrained_and_finetuned_AUROC_scores'].append(full_scores[filter])
 
     results_pd = pd.DataFrame.from_dict(results)
     results_dict_path = join(BASE_PATH,
@@ -297,10 +324,10 @@ if __name__ == '__main__':
         os.makedirs(join(BASE_PATH, f'summarize_results/{args["dataset"]}'))
     results_pd.to_csv(results_dict_path)
 
-    print(torch.equal(tests[0][0], tests[1][0]))
-    print(torch.equal(tests[0][0], tests[2][0]))
-    print(torch.equal(tests[1][0], tests[2][0]))
-    print(tests[0][1], tests[1][1], tests[2][1])
-    print(torch.min(tests[0][0]), torch.max(tests[0][0]))
-    print(torch.min(tests[1][0]), torch.max(tests[1][0]))
-    print(torch.min(tests[2][0]), torch.max(tests[2][0]))
+    # print(torch.equal(tests[0][0], tests[1][0]))
+    # print(torch.equal(tests[0][0], tests[2][0]))
+    # print(torch.equal(tests[1][0], tests[2][0]))
+    # print(tests[0][1], tests[1][1], tests[2][1])
+    # print(torch.min(tests[0][0]), torch.max(tests[0][0]))
+    # print(torch.min(tests[1][0]), torch.max(tests[1][0]))
+    # print(torch.min(tests[2][0]), torch.max(tests[2][0]))
