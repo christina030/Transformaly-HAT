@@ -1,4 +1,4 @@
-# Transformaly-HAT
+# Final project - Transformaly-HAT
 
 Transformaly: https://github.com/MatanCohen1/Transformaly
 
